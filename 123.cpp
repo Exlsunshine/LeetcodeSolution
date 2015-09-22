@@ -10,74 +10,35 @@ class Solution
 public:
 	int maxProfit(vector<int>& prices) 
     {
-        // previous_min[s, i] = k means the lowest price before day i and 
-        // after day s is prices[k] (k is the previous lowest price index).
-        int **previous_min = new int*[prices.size()];
-        for (int i = 0; i < prices.size() ; ++i)
+        int K = 2;
+        int **p = new int*[prices.size() + 1];
+        for (int i = 0; i < prices.size() + 1; ++i)
         {
-            previous_min[i] = new int[prices.size()];
-            memset(previous_min[i], 0, sizeof(int) * prices.size());
+            p[i] = new int[K + 1];
+            memset(p[i], 0, sizeof(int) * (K + 1));
         }
 
-        for (int i = prices.size() - 1; i >= 0; --i)
+        for (int k = 1; k <= K; ++k)
         {
-            previous_min[i][i] = prices[i];
-            int min = prices[i];
-            int min_idx = i;
-            for (int j = i; j >= 0; --j)
+            int maxVal = p[0][k - 1] - prices[0];
+            for (int i = 1; i <= prices.size(); ++i)
             {
-                if (prices[j] < min)
-                {
-                    min = prices[j];
-                    min_idx = j;
-                }
-
-                previous_min[j][i] = min_idx;
+                p[i][k] = max(  p[i - 1][k],
+                                prices[i - 1] + maxVal);
+                maxVal = max(maxVal, p[i - 1][k - 1] - prices[i - 1]);
             }
         }
-
-    	int **profit = new int*[prices.size() + 1];
-    	for (int i = 0; i < prices.size(); ++i)
-            profit[i] = new int[prices.size() + 1];
-        memset(profit, 0, sizeof(profit[0][0]) * (prices.size() + 1) * (prices.size() + 1));
-
 /*
-        for (int i = 0; i < prices.size(); ++i)
+        for (int i = 0; i < prices.size() + 1; ++i)
         {
-            for (int j = 0; j < prices.size(); ++j)
+            for (int j = 0; j < 3; ++j)
             {
-                cout << profit[i] << ", ";
+                cout << p[i][j] << ",";
             }
-            cout << endl;
-        }
-
-        for (int i = 0; i < prices.size(); ++i)
-        {
-            for (int j = 0; j < prices.size(); ++j)
-                cout << previous_min[i][j] << ", ";
-            cout << endl;
-        }
-
-        cout << endl;
-        for (int i = 0; i < prices.size(); ++i)
-        {
-            for (int j = 0; j < prices.size(); ++j)
-                cout << prices[previous_min[i][j]] << ", ";
             cout << endl;
         }
 */
-
-        int K = 2;
-        for (int i = 1; i <= prices.size(); ++i)
-        {
-            int last_bought = 0;
-            for (int k = 1; k < K; ++k)
-            {
-                profit[i, k] = max( profit[i - 1][k],
-                                    profit[][k - 1] + prices[i] - prices[previous_min[last_bought, i]]));
-            }
-        }
-        return 0;
+        return p[prices.size()][2];
     }
 };
 
@@ -92,7 +53,7 @@ int main()
     v.push_back(5);
 
     Solution s;
-    s.maxProfit(v);
+    cout << s.maxProfit(v);
 	return 0;
 }
 
