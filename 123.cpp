@@ -1,4 +1,6 @@
 #include <iostream>
+#include <vector>
+#include <cassert>
 
 using namespace std;
 
@@ -8,22 +10,93 @@ class Solution
 public:
 	int maxProfit(vector<int>& prices) 
     {
-    	int profit [] = new int[prices.size()];
+        // previous_min[s, i] = k means the lowest price before day i and 
+        // after day s is prices[k] (k is the previous lowest price index).
+        int **previous_min = new int*[prices.size()];
+        for (int i = 0; i < prices.size() ; ++i)
+        {
+            previous_min[i] = new int[prices.size()];
+            memset(previous_min[i], 0, sizeof(int) * prices.size());
+        }
 
+        for (int i = prices.size() - 1; i >= 0; --i)
+        {
+            previous_min[i][i] = prices[i];
+            int min = prices[i];
+            int min_idx = i;
+            for (int j = i; j >= 0; --j)
+            {
+                if (prices[j] < min)
+                {
+                    min = prices[j];
+                    min_idx = j;
+                }
+
+                previous_min[j][i] = min_idx;
+            }
+        }
+
+    	int **profit = new int*[prices.size() + 1];
     	for (int i = 0; i < prices.size(); ++i)
-    	{
+            profit[i] = new int[prices.size() + 1];
+        memset(profit, 0, sizeof(profit[0][0]) * (prices.size() + 1) * (prices.size() + 1));
 
-    	}
+/*
+        for (int i = 0; i < prices.size(); ++i)
+        {
+            for (int j = 0; j < prices.size(); ++j)
+            {
+                cout << profit[i] << ", ";
+            }
+            cout << endl;
+        }
+
+        for (int i = 0; i < prices.size(); ++i)
+        {
+            for (int j = 0; j < prices.size(); ++j)
+                cout << previous_min[i][j] << ", ";
+            cout << endl;
+        }
+
+        cout << endl;
+        for (int i = 0; i < prices.size(); ++i)
+        {
+            for (int j = 0; j < prices.size(); ++j)
+                cout << prices[previous_min[i][j]] << ", ";
+            cout << endl;
+        }
+*/
+
+        int K = 2;
+        for (int i = 1; i <= prices.size(); ++i)
+        {
+            int last_bought = 0;
+            for (int k = 1; k < K; ++k)
+            {
+                profit[i, k] = max( profit[i - 1][k],
+                                    profit[][k - 1] + prices[i] - prices[previous_min[last_bought, i]]));
+            }
+        }
+        return 0;
     }
 };
 
 
 int main()
 {
+    std::vector<int> v;
+    v.push_back(1);
+    v.push_back(4);
+    v.push_back(3);
+    v.push_back(2);
+    v.push_back(5);
+
+    Solution s;
+    s.maxProfit(v);
 	return 0;
 }
 
-
+/*
 
 class Solution {
 public:
@@ -38,9 +111,12 @@ public:
             int K = 2; // number of max transation allowed
             int maxProf = 0;
             vector<vector<int>> f(K+1, vector<int>(prices.size(), 0));
-            for (int kk = 1; kk <= K; kk++) {
+
+            for (int kk = 1; kk <= K; kk++) 
+            {
                 int tmpMax = f[kk-1][0] - prices[0];
-                for (int ii = 1; ii < prices.size(); ii++) {
+                for (int ii = 1; ii < prices.size(); ii++) 
+                {
                     f[kk][ii] = max(f[kk][ii-1], prices[ii] + tmpMax);
                     tmpMax = max(tmpMax, f[kk-1][ii] - prices[ii]);
                     maxProf = max(f[kk][ii], maxProf);
@@ -96,3 +172,7 @@ public class Solution {
 
     }
 }
+
+
+
+*/
