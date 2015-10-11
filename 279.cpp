@@ -1,24 +1,22 @@
 #include <iostream>
-#include <cmath>
+//#include <cmath>
 
 using namespace std;
 
 class Solution {
 public:
-
     int numSquares(int n)
     {
     	int *dp = new int[n + 1];
-    	memset(dp, INT_MAX, sizeof(int) * (n + 1));
+    	for (int i = 0; i <= n; ++i)
+    		dp[i] = INT_MAX;
+
     	dp[1] = 1;
+    	dp[0] = 0;
 
     	for (int i = 2; i <= n; ++i)
-    	{
-    		for (int j = 1; j * j < i; ++j)
-    		{
+    		for (int j = 1; j * j <= i; ++j)
     			dp[i] = min(dp[i], dp[i - j * j] + 1);
-    		}
-    	}
 
     	return dp[n];
     }
@@ -56,6 +54,6 @@ public:
 int main(int argc, char const *argv[])
 {
 	Solution s;
-	cout << s.numSquares(13) << endl;
+	cout << s.numSquares(12) << endl;
 	return 0;
 }
