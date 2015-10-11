@@ -5,6 +5,25 @@ using namespace std;
 
 class Solution {
 public:
+
+    int numSquares(int n)
+    {
+    	int *dp = new int[n + 1];
+    	memset(dp, INT_MAX, sizeof(int) * (n + 1));
+    	dp[1] = 1;
+
+    	for (int i = 2; i <= n; ++i)
+    	{
+    		for (int j = 1; j * j < i; ++j)
+    		{
+    			dp[i] = min(dp[i], dp[i - j * j] + 1);
+    		}
+    	}
+
+    	return dp[n];
+    }
+
+/*
     int numSquares(int n)
     {
     	int max_prob = (int)sqrt(n);
@@ -31,6 +50,7 @@ public:
 
     	return dp[max_prob][n];
     }
+*/
 };
 
 int main(int argc, char const *argv[])
