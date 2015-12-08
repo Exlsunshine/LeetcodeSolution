@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <stack>
 
 using namespace std;
 
@@ -7,6 +8,11 @@ class Solution {
 public:
     void solve(vector<vector<char>>& board)
     {
+        if (board.size() == 0)
+            return;
+        if (board[0].size() == 0)
+            return;
+		
     	std::vector<std::vector<bool>> visited(board.size(), std::vector<bool>(board[0].size(), false));
     	
     	// top
@@ -20,41 +26,60 @@ public:
     		dfs(board, i, 0, visited, true);
     	// right
     	for (int i = 0; i < board.size(); ++i)
-    		dfs(board, i, board[0].size(), visited, true);
+    		dfs(board, i, board[0].size() - 1, visited, true);
 
     	// the rest point
-		for (int i = 0; i < board.size(); ++i)
-			for (int j = 0; j < board[i].size(); ++j)
+		for (int i = 1; i < board.size() - 1; ++i)
+			for (int j = 1; j < board[i].size() - 1; ++j)
 				dfs(board, i, j, visited, false);
 
-    	for (int i = 1; i < board.size() - 1; ++i)
+    	for (int i = 0; i < board.size(); ++i)
 		{
-			for (int j = 1; j < board[i].size() - 1; ++j)
+			for (int j = 0; j < board[i].size(); ++j)
 				cout << board[i][j] << " ";
 			cout << endl;
 		}
     }
 
 private:
-	void dfs(std::vector<std::vector<char>> &board, int i, int j, std::vector<std::vector<bool>> &visited, bool isAtBounder)
+	void dfs(std::vector<std::vector<char>> &board, int row, int col, std::vector<std::vector<bool>> &visited, bool isAtBounder)
 	{
-		if (i < 0 || i >= board.size())
+		if (row < 0 || row >= board.size())
 			return;
-		if (j < 0 || j >= board[i].size())
+		if (col < 0 || col >= board[row].size())
 			return;
-		if (visited[i][j])
+		if (visited[row][col])
 			return;
-		
-		visited[i][j] = true;
-		if (board[i][j] == 'O')
-		{
-			if (!isAtBounder)
-				board[i][j] = 'X';
 
-			dfs(board, i - 1, j, visited, isAtBounder);
-			dfs(board, i + 1, j, visited, isAtBounder);
-			dfs(board, i, j - 1, visited, isAtBounder);
-			dfs(board, i, j + 1, visited, isAtBounder);
+		stack<pair<int, int>> stk;
+		stk.push(make_pair(row, col));
+		
+		while (!stk.empty())
+		{
+			pair<int, int> point = stk.top();
+			stk.pop();
+
+			int i = point.first;
+			int j = point.second;
+
+			if (visited[i][j])
+				continue;
+
+			visited[i][j] = true;
+			if (board[i][j] == 'O')
+			{
+				if (!isAtBounder)
+					board[i][j] = 'X';
+
+                if (i - 1 >= 0 && i - 1 < board.size() && !visited[i - 1][j])
+				    stk.push(make_pair(i - 1, j));
+				if (i + 1 >= 0 && i + 1 < board.size() && !visited[i + 1][j])
+				    stk.push(make_pair(i + 1, j));
+				if (j - 1 >= 0 && j - 1 < board[row].size() && !visited[i][j - 1])
+				    stk.push(make_pair(i, j - 1));
+				if (j + 1 >= 0 && j + 1 < board[row].size() && !visited[i][j + 1])
+				    stk.push(make_pair(i, j + 1));
+			}	
 		}
 	}
 };
@@ -82,7 +107,7 @@ int main(int argc, char const *argv[])
 
 		cout << endl;
 	}
-	cout << endl;
+	cout << endl << endl;
 
 	Solution s;
 	s.solve(v);
