@@ -8,7 +8,7 @@ public:
     {
     	Trie *root = new Trie('-');
     	for (int i = 0; i < words.size(); ++i)
-    		insert(words[i], root);
+    		insert(i, words, root);
 
     	unordered_set<string> set;
 
@@ -16,9 +16,8 @@ public:
     	{
 			for (int j = 0; j < board[0].size(); ++j)
     		{
-    		  //  cout << i << "\t" << j << endl;
     			std::vector<std::vector<bool>> isVisited(board.size(), std::vector<bool>(board[0].size(), false));
-    			backtracking(i, j, "", isVisited, root, board, set);
+    			backtracking(i, j, isVisited, root, board, set, words);
     			
     			if (set.size() == words.size())
     			{
@@ -35,27 +34,27 @@ public:
 
 private:
     class Trie;
-	void backtracking(int row, int col, string prefix, std::vector<std::vector<bool>> &isVisited, Trie *root,
-		const std::vector<std::vector<char>> &board, unordered_set<string> &set)
+	void backtracking(int row, int col, std::vector<std::vector<bool>> &isVisited, Trie *root,
+		const std::vector<std::vector<char>> &board, unordered_set<string> &set, vector<string>& words)
 	{
-	   // cout << prefix << endl;
 		if (row >= board.size() || col >= board[0].size())
 			return ;
 		if (isVisited[row][col])
 			return ;
 
-		prefix += board[row][col];
-		int status = exist(prefix, root);
-		if (status == -1)
-			return ;
-		else if (status == 0)
-			set.insert(prefix);
-
+		if (root->child[board[row][col] - 'a'] != NULL)
+		{
+		    if (root->child[board[row][col] - 'a']->leaf)
+		        set.insert(words[root->child[board[row][col] - 'a']->index]);
+		}
+		else
+		    return;
+		    
 		isVisited[row][col] = true;
-		backtracking(row, col - 1, prefix, isVisited, root, board, set);
-		backtracking(row, col + 1, prefix, isVisited, root, board, set);
-		backtracking(row - 1, col, prefix, isVisited, root, board, set);
-		backtracking(row + 1, col, prefix, isVisited, root, board, set);
+		backtracking(row, col - 1, isVisited, root->child[board[row][col] - 'a'], board, set, words);
+		backtracking(row, col + 1, isVisited, root->child[board[row][col] - 'a'], board, set, words);
+		backtracking(row - 1, col, isVisited, root->child[board[row][col] - 'a'], board, set, words);
+		backtracking(row + 1, col, isVisited, root->child[board[row][col] - 'a'], board, set, words);
 		isVisited[row][col] = false;
 	}
 
@@ -67,16 +66,20 @@ private:
 			ch = c;
 			memset(child, NULL, sizeof(Trie *) * 26);
 			leaf = false;
+			index = -1;
 		}
 
 		char ch;
 		bool leaf;
+		int index;
 		Trie *child[26];
 	};
 	
-	void insert(string str, Trie *rt)
+	void insert(int ith, vector<string> &words, Trie *rt)
 	{
 	    Trie *root = rt;
+	    string str = words[ith];
+	    
 		for (int i = 0; i < str.length(); ++i)
 		{
 			char ch = str[i];
@@ -88,25 +91,7 @@ private:
 		}
 		
 		root->leaf = true;
-	}
-
-	// -1 means not found
-	// 0 means found at ternimal nodes
-	// 1 means found at inner nodes
-	int exist(string prefix, Trie *rt)
-	{
-	    Trie *root = rt;
-		for (int i = 0; i < prefix.size(); ++i)
-		{
-		    char ch = prefix[i];
-
-			if (root->child[ch - 'a'] == NULL)
-				return -1;
-			else
-				root = root->child[ch - 'a'];
-		}
-        
-        return (root->leaf ? 0 : 1);
+		root->index = ith;
 	}
 };
 
